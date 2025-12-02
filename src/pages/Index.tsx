@@ -1,13 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Layout from "@/components/layout/Layout";
+import HeroSection from "@/components/home/HeroSection";
+import CategoriesSection from "@/components/home/CategoriesSection";
+import FeaturedProducts from "@/components/home/FeaturedProducts";
+import PromoBanner from "@/components/home/PromoBanner";
+import NewArrivals from "@/components/home/NewArrivals";
+import { Helmet } from "react-helmet-async";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { language } = useLanguage();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <Helmet>
+        <title>LUXE | {language === "ar" ? "أزياء فاخرة" : "Luxury Fashion"}</title>
+        <meta 
+          name="description" 
+          content={language === "ar" 
+            ? "اكتشف مجموعتنا المختارة من الأزياء الفاخرة للرجال والنساء - ملابس، أحذية وإكسسوارات"
+            : "Discover our curated collection of luxury fashion for men and women - clothing, shoes, and accessories"
+          } 
+        />
+      </Helmet>
+      <Layout>
+        <HeroSection />
+        <CategoriesSection />
+        <FeaturedProducts />
+        <PromoBanner />
+        <NewArrivals />
+      </Layout>
+    </>
   );
 };
 
