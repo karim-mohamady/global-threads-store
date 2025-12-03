@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: global_threads_app
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - global-threads
+    command: php artisan serve --host=0.0.0.0
+
+  db:
+    image: mysql:8.0
+    container_name: global_threads_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-global_threads_store}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+    volumes:
+      - ./storage/docker/dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - global-threads
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: global_threads_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - global-threads
+
+  nginx:
+    image: nginx:alpine
+    container_name: global_threads_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/app
+      - ./storage/docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - global-threads
+
+networks:
+  global-threads:
+    driver: bridge
