@@ -1,4 +1,4 @@
-<? php
+<?php
 
 namespace App\Http\Controllers\Api\v1;
 
@@ -41,13 +41,13 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        if (!  $user || ! Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        if (! $user->is_active) {
+        if (!$user->is_active) {
             throw ValidationException::withMessages([
                 'email' => ['This account is inactive.'],
             ]);

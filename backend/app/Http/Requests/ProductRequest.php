@@ -15,7 +15,7 @@ class ProductRequest extends FormRequest
     {
         return [
             'category_id' => 'required|exists:categories,id',
-            'sku' => 'required|string|unique:products,sku,' . $this->product? ->id,
+            'sku' => 'required|string|unique:products,sku,' . $this->product?->id,
             'price' => 'required|numeric|min:0',
             'cost' => 'nullable|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
@@ -30,7 +30,7 @@ class ProductRequest extends FormRequest
             'translations.en.name' => 'required|string|max:255',
             'translations.en.description' => 'nullable|string',
             'translations.ar' => 'nullable|array',
-            'translations.ar. name' => 'nullable|string|max:255',
+            'translations.ar.name' => 'nullable|string|max:255',
             'translations.ar.description' => 'nullable|string',
         ];
     }
