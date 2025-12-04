@@ -59,7 +59,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('/reviews/{review}', [ReviewsController::class, 'destroy']);
 
         // Admin routes
-        Route::middleware('is. admin')->group(function () {
+        Route::middleware('is.admin')->group(function () {
             Route::apiResource('products', ProductsController::class)->only(['store', 'update', 'destroy']);
             Route::apiResource('categories', CategoriesController::class)->only(['store', 'update', 'destroy']);
             Route::apiResource('coupons', CouponsController::class)->only(['store', 'update', 'destroy']);
