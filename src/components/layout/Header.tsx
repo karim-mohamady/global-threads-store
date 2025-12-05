@@ -1,16 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingBag, Heart, User, Menu, X, Globe } from "lucide-react";
+import { Search, ShoppingBag, Heart, User, Menu, X, Globe, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
-  const { language, setLanguage, t, dir } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const { totalItems } = useCart();
   const { items: wishlistItems } = useWishlist();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -113,11 +122,42 @@ const Header = () => {
             </Link>
 
             {/* Account */}
-            <Link to="/account">
-              <Button variant="ghost" size="icon" className="hidden sm:flex">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden sm:flex">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5 text-sm font-medium">
+                    {user?.first_name} {user?.last_name}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/account">{t("nav.account")}</Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin">
+                        {language === "en" ? "Admin Panel" : "لوحة التحكم"}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-destructive">
+                    <LogOut className="h-4 w-4 me-2" />
+                    {t("nav.logout")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="ghost" size="sm" className="hidden sm:flex">
+                  {t("nav.login")}
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -152,6 +192,46 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+            
+            {/* Mobile Auth Links */}
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/account"
+                  className="py-2 text-sm font-medium tracking-wide hover:text-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t("nav.account")}
+                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="py-2 text-sm font-medium tracking-wide hover:text-accent transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {language === "en" ? "Admin Panel" : "لوحة التحكم"}
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="py-2 text-sm font-medium tracking-wide text-destructive text-start"
+                >
+                  {t("nav.logout")}
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/auth"
+                className="py-2 text-sm font-medium tracking-wide hover:text-accent transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t("nav.login")} / {t("nav.register")}
+              </Link>
+            )}
+            
             <Button
               variant="ghost"
               size="sm"
