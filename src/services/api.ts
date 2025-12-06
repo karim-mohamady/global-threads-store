@@ -102,7 +102,14 @@ export const productsApi = {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) searchParams.append(key, String(value));
+        if (value !== undefined && value !== null && value !== '') {
+          // Handle the search filter for Spatie Query Builder
+          if (key === 'search') {
+            searchParams.append('filter[search]', String(value));
+          } else {
+            searchParams.append(key, String(value));
+          }
+        }
       });
     }
     const query = searchParams.toString();
@@ -110,6 +117,30 @@ export const productsApi = {
   },
 
   getOne: (id: number | string) => apiRequest<{ data: any }>(`/products/${id}`),
+
+  // Dedicated search endpoint
+  search: (params: {
+    q?: string;
+    query?: string;
+    category_id?: number;
+    min_price?: number;
+    max_price?: number;
+    color?: string;
+    size?: string;
+    in_stock?: boolean;
+    sort?: string;
+    page?: number;
+    per_page?: number;
+  }) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.append(key, String(value));
+      }
+    });
+    const query = searchParams.toString();
+    return apiRequest<{ data: any[]; meta: any }>(`/search${query ? `?${query}` : ''}`);
+  },
 
   create: (data: any) => apiRequest<{ message: string; product: any }>('/products', {
     method: 'POST',
@@ -203,7 +234,7 @@ export const wishlistApi = {
 
 // Orders API
 export const ordersApi = {
-  getAll: (params?: { page?: number; per_page?: number }) => {
+  getAll: (params?: { page?: number; per_page?: number; status?: string }) => {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -239,6 +270,12 @@ export const ordersApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+
+  updateStatus: (id: number | string, status: string) =>
+    apiRequest<{ message: string; order: any }>(`/orders/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    }),
 };
 
 // Reviews API
@@ -319,6 +356,30 @@ export const adminApi = {
     delete: (id: number | string) =>
       apiRequest<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
   },
+
+  orders: {
+    getAll: (params?: { page?: number; per_page?: number; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined) searchParams.append(key, String(value));
+        });
+      }
+      const query = searchParams.toString();
+      return apiRequest<{ data: any[]; meta: any }>(`/admin/orders${query ? `?${query}` : ''}`);
+    },
+
+    updateStatus: (id: number | string, status: string) =>
+      apiRequest<{ message: string; order: any }>(`/admin/orders/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      }),
+  },
+
+  categories: categoriesApi,
+  products: productsApi,
+  banners: bannersApi,
+  coupons: couponsApi,
 };
 
 export default {
