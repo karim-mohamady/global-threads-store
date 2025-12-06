@@ -21,6 +21,11 @@ Route::prefix('v1')->group(function () {
 
     // Public product routes
     Route::apiResource('products', ProductsController::class)->only(['index', 'show']);
+    
+    // Dedicated search endpoint
+    Route::get('/products/search', [ProductsController::class, 'search']);
+    Route::get('/search', [ProductsController::class, 'search']); // Alias for easier access
+    
     Route::apiResource('categories', CategoriesController::class)->only(['index', 'show']);
     Route::apiResource('banners', BannersController::class)->only(['index', 'show']);
 
@@ -52,6 +57,7 @@ Route::prefix('v1')->group(function () {
 
         // Orders
         Route::apiResource('orders', OrdersController::class)->only(['index', 'show', 'store']);
+        Route::put('/orders/{order}/status', [OrdersController::class, 'updateStatus']);
 
         // Reviews
         Route::post('/reviews', [ReviewsController::class, 'store']);
@@ -65,6 +71,10 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('coupons', CouponsController::class)->only(['store', 'update', 'destroy']);
             Route::apiResource('banners', BannersController::class)->only(['store', 'update', 'destroy']);
             Route::apiResource('admin/users', AdminController::class);
+            
+            // Admin order management
+            Route::get('/admin/orders', [OrdersController::class, 'adminIndex']);
+            Route::put('/admin/orders/{order}/status', [OrdersController::class, 'updateStatus']);
         });
     });
 });

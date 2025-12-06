@@ -92,14 +92,82 @@ class Product extends Model
         return $query->where('category_id', $categoryId);
     }
 
+    /**
+     * Enhanced search scope - searches by name, description, short_description, and SKU
+     * Supports both English and Arabic text
+     */
     public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->where('sku', 'like', "%{$term}%");
+        $term = trim($term);
+        
+        if (empty($term)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($term) {
+            // Search in SKU
+            $q->where('sku', 'like', "%{$term}%");
+            
+            // Search in JSON translatable fields (name, description, short_description)
+            // This works with Spatie's laravel-translatable package
+            $q->orWhere('name', 'like', "%{$term}%")
+              ->orWhere('description', 'like', "%{$term}%")
+              ->orWhere('short_description', 'like', "%{$term}%");
+            
+            // Also search in category name for related products
+            $q->orWhereHas('category', function (Builder $categoryQuery) use ($term) {
+                $categoryQuery->where('name', 'like', "%{$term}%");
+            });
+        });
     }
 
-    public function getDiscountPercentage(): ? float
+    /**
+     * Scope to filter by price range
+     */
+    public function scopePriceRange(Builder $query, ?float $min = null, ?float $max = null): Builder
     {
-        if (! $this->discount_price || $this->discount_price >= $this->price) {
+        if ($min !== null) {
+            $query->where('price', '>=', $min);
+        }
+        
+        if ($max !== null) {
+            $query->where('price', '<=', $max);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope to filter by color (from variants)
+     */
+    public function scopeByColor(Builder $query, string $color): Builder
+    {
+        return $query->whereHas('variants', function (Builder $q) use ($color) {
+            $q->where('color', $color);
+        });
+    }
+
+    /**
+     * Scope to filter by size (from variants)
+     */
+    public function scopeBySize(Builder $query, string $size): Builder
+    {
+        return $query->whereHas('variants', function (Builder $q) use ($size) {
+            $q->where('size', $size);
+        });
+    }
+
+    /**
+     * Scope to filter in-stock products only
+     */
+    public function scopeInStock(Builder $query): Builder
+    {
+        return $query->where('stock_quantity', '>', 0);
+    }
+
+    public function getDiscountPercentage(): ?float
+    {
+        if (!$this->discount_price || $this->discount_price >= $this->price) {
             return null;
         }
 

@@ -14,6 +14,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class ProductsController extends Controller
 {
+    /**
+     * Get all products with filtering, sorting, and search
+     */
     public function index(Request $request): AnonymousResourceCollection
     {
         $products = QueryBuilder::for(Product::class)
@@ -22,11 +25,96 @@ class ProductsController extends Controller
                 AllowedFilter::exact('is_featured'),
                 AllowedFilter::exact('is_active'),
                 AllowedFilter::scope('search'),
+                AllowedFilter::scope('price_range', 'priceRange'),
+                AllowedFilter::scope('color', 'byColor'),
+                AllowedFilter::scope('size', 'bySize'),
+                AllowedFilter::scope('in_stock', 'inStock'),
             ])
-            ->allowedSorts(['price', 'created_at', 'average_rating', 'views'])
+            ->allowedSorts(['price', 'created_at', 'average_rating', 'views', 'name'])
+            ->allowedIncludes(['category', 'variants', 'reviews'])
             ->with(['category', 'variants'])
             ->where('is_active', true)
             ->paginate($request->get('per_page', 15));
+
+        return ProductResource::collection($products);
+    }
+
+    /**
+     * Search products - dedicated search endpoint
+     */
+    public function search(Request $request): AnonymousResourceCollection
+    {
+        $query = $request->get('q', $request->get('query', ''));
+        $categoryId = $request->get('category_id');
+        $minPrice = $request->get('min_price');
+        $maxPrice = $request->get('max_price');
+        $color = $request->get('color');
+        $size = $request->get('size');
+        $inStock = $request->boolean('in_stock', false);
+        $sort = $request->get('sort', 'relevance');
+
+        $productsQuery = Product::query()
+            ->where('is_active', true)
+            ->with(['category', 'variants']);
+
+        // Apply search term
+        if (!empty($query)) {
+            $productsQuery->search($query);
+        }
+
+        // Apply category filter
+        if ($categoryId) {
+            $productsQuery->where('category_id', $categoryId);
+        }
+
+        // Apply price range filter
+        if ($minPrice !== null || $maxPrice !== null) {
+            $productsQuery->priceRange(
+                $minPrice ? (float) $minPrice : null,
+                $maxPrice ? (float) $maxPrice : null
+            );
+        }
+
+        // Apply color filter
+        if ($color) {
+            $productsQuery->byColor($color);
+        }
+
+        // Apply size filter
+        if ($size) {
+            $productsQuery->bySize($size);
+        }
+
+        // Apply in-stock filter
+        if ($inStock) {
+            $productsQuery->inStock();
+        }
+
+        // Apply sorting
+        switch ($sort) {
+            case 'price_asc':
+                $productsQuery->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $productsQuery->orderBy('price', 'desc');
+                break;
+            case 'newest':
+                $productsQuery->orderBy('created_at', 'desc');
+                break;
+            case 'rating':
+                $productsQuery->orderBy('average_rating', 'desc');
+                break;
+            case 'popularity':
+                $productsQuery->orderBy('views', 'desc');
+                break;
+            default:
+                // Relevance - already ordered by search
+                $productsQuery->orderBy('is_featured', 'desc')
+                             ->orderBy('average_rating', 'desc');
+                break;
+        }
+
+        $products = $productsQuery->paginate($request->get('per_page', 15));
 
         return ProductResource::collection($products);
     }
