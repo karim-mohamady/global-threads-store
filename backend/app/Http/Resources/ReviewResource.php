@@ -19,7 +19,7 @@ class ReviewResource extends JsonResource
             'is_verified_purchase' => $this->is_verified_purchase,
             'is_approved' => $this->is_approved,
             'helpful_count' => $this->helpful_count,
-            'created_at' => $this->created_at? ->format('Y-m-d H:i:s'),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

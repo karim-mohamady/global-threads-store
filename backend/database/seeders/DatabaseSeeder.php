@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
         // Create categories
         $clothingCategory = Category::create([
             'slug' => 'clothing',
-            'image_url' => 'https://via.placeholder.com/640x480? text=Clothing',
+            'image_url' => 'https://via.placeholder.com/640x480?text=Clothing',
             'sort_order' => 1,
             'is_active' => true,
         ]);
@@ -135,7 +135,7 @@ class DatabaseSeeder extends Seeder
                 'category_id' => $productData['category']->id,
                 'sku' => $productData['sku'],
                 'price' => $productData['price'],
-                'cost' => $productData['price'] * 0. 5,
+                'cost' => $productData['price'] * 0.5,
                 'discount_price' => $productData['price'] * 0.8,
                 'stock_quantity' => $productData['stock'],
                 'minimum_stock' => 10,

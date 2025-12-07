@@ -22,7 +22,7 @@ class OrderService
         }
 
         $subtotal = $cart->getSubtotal();
-        $taxAmount = $subtotal * 0. 10; // 10% tax
+        $taxAmount = $subtotal * 0.10; // 10% tax
         $shippingCost = 50; // Fixed shipping
         $discountAmount = 0;
 
@@ -31,7 +31,7 @@ class OrderService
         if ($request->coupon_code) {
             $coupon = Coupon::where('code', $request->coupon_code)->firstOrFail();
 
-            if (! $coupon->canBeUsedByUser($user)) {
+            if (!$coupon->canBeUsedByUser($user)) {
                 throw new \Exception('Coupon cannot be used');
             }
 
@@ -49,7 +49,7 @@ class OrderService
             'shipping_cost' => $shippingCost,
             'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
-            'coupon_id' => $coupon? ->id,
+            'coupon_id' => $coupon?->id,
             'payment_method' => $request->payment_method,
             'status' => 'pending',
             'payment_status' => 'pending',
