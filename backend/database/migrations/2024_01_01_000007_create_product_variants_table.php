@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('product_id');
-            $table->unique(['product_id', 'attribute_name', 'attribute_value']);
+           $table->unique(['product_id', 'attribute_name', 'attribute_value'], 'product_variant_unique');
         });
     }
 
