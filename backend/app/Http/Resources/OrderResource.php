@@ -29,7 +29,7 @@ class OrderResource extends JsonResource
             'notes' => $this->notes,
             'confirmed_at' => $this->confirmed_at?->format('Y-m-d H:i:s'),
             'shipped_at' => $this->shipped_at?->format('Y-m-d H:i:s'),
-            'delivered_at' => $this->delivered_at? ->format('Y-m-d H:i:s'),
+            'delivered_at' => $this->delivered_at?->format('Y-m-d H:i:s'),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
