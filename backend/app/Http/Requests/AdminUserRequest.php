@@ -13,7 +13,7 @@ class AdminUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = $this->user? ->id;
+        $userId = $this->user?->id;
 
         return [
             'first_name' => 'required|string|max:255',
@@ -21,7 +21,10 @@ class AdminUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $userId,
             'password' => $userId ? 'nullable|min:8' : 'required|min:8',
             'phone' => 'nullable|string|max:20',
+            'role' => 'nullable|in:customer,admin',
             'is_active' => 'boolean',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
         ];
     }
 }

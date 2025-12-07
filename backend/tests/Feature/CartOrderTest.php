@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Address;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -93,27 +94,41 @@ class CartOrderTest extends TestCase
             'quantity' => 2,
             'price' => $product->price,
         ]);
+
+        // Create shipping and billing addresses
+        $shippingAddress = Address::create([
+            'user_id' => $user->id,
+            'type' => 'shipping',
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'street_address' => '123 Test Street',
+            'city' => 'Test City',
+            'state' => 'Test State',
+            'postal_code' => '12345',
+            'country' => 'Test Country',
+            'phone' => '+1234567890',
+        ]);
+
+        $billingAddress = Address::create([
+            'user_id' => $user->id,
+            'type' => 'billing',
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'street_address' => '123 Test Street',
+            'city' => 'Test City',
+            'state' => 'Test State',
+            'postal_code' => '12345',
+            'country' => 'Test Country',
+            'phone' => '+1234567890',
+        ]);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/v1/orders', [
-                'payment_method' => 'cash_on_delivery',
-                'shipping_address' => [
-                    'street_address' => '123 Test Street',
-                    'city' => 'Test City',
-                    'state' => 'Test State',
-                    'postal_code' => '12345',
-                    'country' => 'Test Country',
-                    'phone' => '+1234567890',
-                ],
-                'billing_address' => [
-                    'street_address' => '123 Test Street',
-                    'city' => 'Test City',
-                    'state' => 'Test State',
-                    'postal_code' => '12345',
-                    'country' => 'Test Country',
-                    'phone' => '+1234567890',
-                ],
+                'payment_method' => 'cod',
+                'shipping_address_id' => $shippingAddress->id,
+                'billing_address_id' => $billingAddress->id,
             ]);
 
         $response->assertStatus(201)

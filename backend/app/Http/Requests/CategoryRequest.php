@@ -22,9 +22,9 @@ class CategoryRequest extends FormRequest
             'translations' => 'required|array',
             'translations.en' => 'required|array',
             'translations.en.name' => 'required|string|max:255',
-            'translations. en.description' => 'nullable|string',
-            'translations. ar' => 'nullable|array',
-            'translations.ar. name' => 'nullable|string|max:255',
+            'translations.en.description' => 'nullable|string',
+            'translations.ar' => 'nullable|array',
+            'translations.ar.name' => 'nullable|string|max:255',
             'translations.ar.description' => 'nullable|string',
         ];
     }

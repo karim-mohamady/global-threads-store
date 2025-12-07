@@ -26,7 +26,7 @@ class BannerRequest extends FormRequest
             'translations.en.title' => 'nullable|string|max:255',
             'translations.en.description' => 'nullable|string',
             'translations.ar' => 'array',
-            'translations. ar.title' => 'nullable|string|max:255',
+            'translations.ar.title' => 'nullable|string|max:255',
             'translations.ar.description' => 'nullable|string',
         ];
     }

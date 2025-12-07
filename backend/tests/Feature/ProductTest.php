@@ -46,13 +46,20 @@ class ProductTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->postJson('/api/v1/products', [
-                'name' => ['en' => 'Test Product', 'ar' => 'منتج تجريبي'],
-                'slug' => 'test-product',
-                'description' => ['en' => 'Test description', 'ar' => 'وصف تجريبي'],
+                'sku' => 'TEST-001',
                 'price' => 99.99,
                 'category_id' => $category->id,
                 'stock_quantity' => 100,
-                'sku' => 'TEST-001',
+                'translations' => [
+                    'en' => [
+                        'name' => 'Test Product',
+                        'description' => 'Test description',
+                    ],
+                    'ar' => [
+                        'name' => 'منتج تجريبي',
+                        'description' => 'وصف تجريبي',
+                    ],
+                ],
             ]);
 
         $response->assertStatus(201)
@@ -84,7 +91,16 @@ class ProductTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
             ->putJson("/api/v1/products/{$product->id}", [
+                'sku' => $product->sku,
                 'price' => 149.99,
+                'category_id' => $product->category_id,
+                'stock_quantity' => $product->stock_quantity,
+                'translations' => [
+                    'en' => [
+                        'name' => 'Updated Product',
+                        'description' => 'Updated description',
+                    ],
+                ],
             ]);
 
         $response->assertStatus(200);
@@ -100,6 +116,6 @@ class ProductTest extends TestCase
             ->deleteJson("/api/v1/products/{$product->id}");
 
         $response->assertStatus(200);
-        $this->assertSoftDeleted('products', ['id' => $product->id]);
+        $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
 }

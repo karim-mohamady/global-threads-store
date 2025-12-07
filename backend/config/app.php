@@ -16,7 +16,7 @@ return [
 
     'key' => env('APP_KEY'),
     'prev_keys' => [
-        ... array_filter(
+        ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
@@ -47,8 +47,6 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
-        Spatie\Cors\CorsServiceProvider::class,
 
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
