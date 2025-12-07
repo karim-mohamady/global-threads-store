@@ -28,6 +28,30 @@ class OrdersController extends Controller
         return OrderResource::collection($orders);
     }
 
+    public function adminIndex(Request $request): AnonymousResourceCollection
+    {
+        $orders = Order::query()
+            ->with(['user', 'items', 'addresses', 'coupon'])
+            ->when($request->get('status'), function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($request->get('payment_status'), function ($query, $status) {
+                $query->where('payment_status', $status);
+            })
+            ->when($request->get('search'), function ($query, $search) {
+                $query->where('order_number', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                          ->orWhere('last_name', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%");
+                    });
+            })
+            ->latest()
+            ->paginate($request->get('per_page', 15));
+
+        return OrderResource::collection($orders);
+    }
+
     public function show(Request $request, Order $order): OrderResource|JsonResponse
     {
         if ($order->user_id !== $request->user()->id && !$request->user()->isAdmin()) {
@@ -54,5 +78,24 @@ class OrdersController extends Controller
                 'error' => $e->getMessage(),
             ], 422);
         }
+    }
+
+    public function updateStatus(Request $request, Order $order): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled,refunded',
+        ]);
+
+        $order->update([
+            'status' => $validated['status'],
+            'confirmed_at' => $validated['status'] === 'confirmed' ? now() : $order->confirmed_at,
+            'shipped_at' => $validated['status'] === 'shipped' ? now() : $order->shipped_at,
+            'delivered_at' => $validated['status'] === 'delivered' ? now() : $order->delivered_at,
+        ]);
+
+        return response()->json([
+            'message' => 'Order status updated successfully.',
+            'order' => new OrderResource($order->load(['items', 'addresses', 'coupon'])),
+        ]);
     }
 }

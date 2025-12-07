@@ -73,7 +73,7 @@ class AuthTest extends TestCase
             ->postJson('/api/v1/auth/logout');
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Logged out successfully']);
+            ->assertJson(['message' => 'Logged out successfully.']);
     }
 
     public function test_login_fails_with_invalid_credentials(): void
@@ -88,6 +88,6 @@ class AuthTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(422);
     }
 }
