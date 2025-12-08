@@ -326,6 +326,105 @@ export const bannersApi = {
   getOne: (id: number | string) => apiRequest<{ data: any }>(`/banners/${id}`),
 };
 
+// Seller API
+export const sellerApi = {
+  register: (data: {
+    store_name: string;
+    store_description: string;
+    business_type: string;
+    address: string;
+    city: string;
+    country: string;
+    phone: string;
+    tax_id?: string;
+    bank_name: string;
+    bank_account: string;
+  }) => apiRequest<{ message: string }>('/seller/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  getStats: () => apiRequest<{ data: any }>('/seller/stats'),
+
+  products: {
+    getAll: (params?: { page?: number; per_page?: number; is_active?: boolean; is_approved?: boolean; low_stock?: boolean }) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined) searchParams.append(key, String(value));
+        });
+      }
+      const query = searchParams.toString();
+      return apiRequest<{ data: any[]; meta: any }>(`/seller/products${query ? `?${query}` : ''}`);
+    },
+
+    getOne: (id: number | string) => apiRequest<{ data: any }>(`/seller/products/${id}`),
+
+    create: (data: any) => apiRequest<{ message: string; product: any }>('/seller/products', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+    update: (id: number | string, data: any) =>
+      apiRequest<{ message: string; product: any }>(`/seller/products/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+
+    delete: (id: number | string) =>
+      apiRequest<{ message: string }>(`/seller/products/${id}`, { method: 'DELETE' }),
+  },
+
+  orders: {
+    getAll: (params?: { page?: number; per_page?: number; status?: string }) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined) searchParams.append(key, String(value));
+        });
+      }
+      const query = searchParams.toString();
+      return apiRequest<{ data: any[]; meta: any }>(`/seller/orders${query ? `?${query}` : ''}`);
+    },
+
+    getOne: (id: number | string) => apiRequest<{ data: any }>(`/seller/orders/${id}`),
+
+    updateStatus: (id: number | string, status: string) =>
+      apiRequest<{ message: string; order: any }>(`/seller/orders/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      }),
+  },
+
+  payouts: {
+    getAll: (params?: { page?: number; per_page?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined) searchParams.append(key, String(value));
+        });
+      }
+      const query = searchParams.toString();
+      return apiRequest<{ data: any[]; meta: any }>(`/seller/payouts${query ? `?${query}` : ''}`);
+    },
+
+    request: (amount: number) =>
+      apiRequest<{ message: string; payout: any }>('/seller/payouts', {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+      }),
+  },
+
+  store: {
+    get: () => apiRequest<{ data: any }>('/seller/store'),
+    update: (data: any) =>
+      apiRequest<{ message: string; store: any }>('/seller/store', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+  },
+};
+
 // Admin API
 export const adminApi = {
   users: {
