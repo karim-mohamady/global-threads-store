@@ -23,6 +23,11 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminBanners from "./pages/admin/AdminBanners";
+import SellerDashboard from "./pages/seller/SellerDashboard";
+import SellerOverview from "./pages/seller/SellerOverview";
+import SellerProducts from "./pages/seller/SellerProducts";
+import SellerOrders from "./pages/seller/SellerOrders";
+import SellerRegister from "./pages/seller/SellerRegister";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +64,14 @@ const App = () => (
                       <Route path="users" element={<AdminUsers />} />
                       <Route path="categories" element={<AdminCategories />} />
                       <Route path="banners" element={<AdminBanners />} />
+                    </Route>
+
+                    {/* Seller Routes */}
+                    <Route path="/seller/register" element={<SellerRegister />} />
+                    <Route path="/seller" element={<SellerDashboard />}>
+                      <Route index element={<SellerOverview />} />
+                      <Route path="products" element={<SellerProducts />} />
+                      <Route path="orders" element={<SellerOrders />} />
                     </Route>
                     
                     <Route path="*" element={<NotFound />} />

@@ -10,6 +10,8 @@ interface User {
   phone?: string;
   role: string;
   is_admin?: boolean;
+  is_seller?: boolean;
+  seller_status?: string;
 }
 
 interface AuthContextType {
@@ -17,6 +19,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isSeller: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -41,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "admin" || user?.is_admin === true;
+  const isSeller = user?.role === "seller" || user?.is_seller === true;
 
   // Check for existing token on mount
   useEffect(() => {
@@ -139,6 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         isAuthenticated,
         isAdmin,
+        isSeller,
         login,
         register,
         logout,
