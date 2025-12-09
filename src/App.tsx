@@ -26,7 +26,11 @@ import AdminBanners from "./pages/admin/AdminBanners";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import SellerOverview from "./pages/seller/SellerOverview";
 import SellerProducts from "./pages/seller/SellerProducts";
+import SellerProductForm from "./pages/seller/SellerProductForm";
 import SellerOrders from "./pages/seller/SellerOrders";
+import SellerAnalytics from "./pages/seller/SellerAnalytics";
+import SellerStore from "./pages/seller/SellerStore";
+import SellerPayouts from "./pages/seller/SellerPayouts";
 import SellerRegister from "./pages/seller/SellerRegister";
 import NotFound from "./pages/NotFound";
 
