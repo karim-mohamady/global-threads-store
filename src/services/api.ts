@@ -15,6 +15,7 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
+
 export const getAuthToken = () => authToken;
 
 // API Request helper
